@@ -241,6 +241,11 @@ The investigation confirmed suspicious SSH authentication activity originating f
 No successful authentication, privilege escalation, or confirmed system compromise was observed during the controlled investigation.
 
 ---
+<img width="1580" height="615" alt="apktool" src="Screenshot 2026-09-01 041335.png" />
+Screenshot 2026-09-01 041335.png
+
+<img width="1580" height="615" alt="apktool" src="Screenshot 2026-09-01 041335.png" />
+
 
 <img width="1580" height="615" alt="apktool" src="Finding Remote SSH Authentication Attack Detected.png" />
 Finding Remote SSH Authentication Attack Detected.png
@@ -248,7 +253,8 @@ Finding Remote SSH Authentication Attack Detected.png
 <img width="1580" height="615" alt="apktool" src="attack details.png" />
 attack details.png
 
-<img width="1580" height="615" alt="apktool" src="attack details.png" />
+
+
 
 ### SOC Analyst Conclusion
 
