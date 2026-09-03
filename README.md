@@ -166,6 +166,7 @@ The investigation confirmed a controlled SSH authentication attack against the m
 - The identified source IP was contained using a UFW firewall rule.
 - UFW confirmed that traffic from `192.168.237.141` to SSH port `22` was denied.
 - The SSH service remained operational after containment.
+<img width="1580" height="615" alt="apktool" src="https://github.com/CharanCSE02/Reverse-Engineering-APk-file/blob/main/Screenshot%202025-11-25%20164924.png" />
 
 ### SOC Analyst Conclusion
 
