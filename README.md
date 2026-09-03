@@ -19,22 +19,27 @@ The objective was to demonstrate a practical SOC workflow:
 
 This lab represents a simplified real-world SOC incident investigation workflow.
 
----
-
-## 🏗️ Lab Environment
+## 🧪 Lab Environment
 
 | Component | Details |
+|-----------|---------|
 | SIEM | Wazuh |
 | Wazuh Version | v4.14.7 |
 | Endpoint OS | Ubuntu 24.04.4 LTS |
-| Endpoint | Ubuntu-SOC-Lab |
+| Monitored Endpoint | Ubuntu-SOC-Lab |
 | Wazuh Agent ID | 001 |
 | Endpoint IP | 192.168.237.148 |
+| Attacker / Source IP | 192.168.237.141 |
+| Attack Source | Separate Ubuntu system |
 | SSH Service | OpenSSH |
 | SSH Port | 22/TCP |
 | Firewall | UFW |
 | Log Source | systemd journal / authentication logs |
+| Detection Rule | Wazuh Rule ID 5710 |
+| Detection | Attempt to login using a non-existent user |
+| Testing Environment | Isolated and controlled SOC laboratory |
 
+---
 ---
 
 ## 🎯 Objective
@@ -51,16 +56,58 @@ The primary objective of this lab was to investigate suspicious SSH authenticati
 - Verify that the containment control is active
 
 ---
+## 🛠️ Tools Used
+
+The following tools and technologies were used to perform the SSH attack simulation, detection, investigation, and containment:
+
+| Tool / Technology | Purpose |
+|-------------------|---------|
+| Wazuh SIEM | Security monitoring, alert generation, and event analysis |
+| Ubuntu Linux | Monitored endpoint and SSH server |
+| OpenSSH / SSH | Remote authentication service under investigation |
+| UFW (Uncomplicated Firewall) | Source IP blocking and network-level containment |
+| Linux Authentication Logs | Validation of failed SSH authentication attempts |
+| MITRE ATT&CK | Threat classification and technique mapping |
+| Kali Linux / Ubuntu | Security testing and attack simulation environment |
+| GitHub | Project documentation and evidence repository |
+
+### Key Capabilities Demonstrated
+
+- Wazuh SIEM monitoring and alert investigation
+- SSH authentication attack detection
+- Linux authentication log analysis
+- Source IP identification
+- MITRE ATT&CK technique mapping
+- Firewall-based incident containment
+- Security control verification
+- SOC incident investigation and documentation
+
+---
 
 ## 🔴 Attack Simulation
 
-A controlled SSH authentication attack was simulated from a separate Ubuntu system.
+A controlled SSH authentication attack was simulated against the monitored Ubuntu endpoint in an isolated SOC laboratory environment.
 
-The following SSH connection was attempted against the monitored Ubuntu endpoint:
+The purpose of the simulation was to generate realistic authentication telemetry that could be detected and investigated through Wazuh SIEM.
 
-```bash
+### Attack Details
 
-ssh wronguser@192.168.237.148
+| Component | Details |
+|-----------|---------|
+| Attack Type | SSH Authentication Attack |
+| Attack Technique | Password Guessing |
+| MITRE ATT&CK | T1110.001 - Password Guessing |
+| Source / Attacker IP | 192.168.237.141 |
+| Target IP | 192.168.237.148 |
+| Target Service | OpenSSH |
+| Destination Port | 22/TCP |
+| Username Attempted | wronguser |
+| Authentication Result | Failed |
+| Wazuh Rule ID | 5710 |
+| Wazuh Alert Level | 5 |
+| Detection | Attempt to login using a non-existent user |
+| Attack Environment | Isolated and controlled laboratory |
+
 
 
 ## 🔎 Incident Investigation
@@ -102,29 +149,39 @@ The alert metadata showed:
 The activity was correlated with the endpoint's SSH authentication logs.
 
 ---
+## 🎯 MITRE ATT&CK Mapping
 
-### MITRE ATT&CK Mapping
+The detected SSH authentication activity was mapped to the following MITRE ATT&CK techniques based on the observed behavior:
 
-Wazuh mapped the detected activity to the following MITRE ATT&CK techniques:
+| Technique | Technique ID | Relevance |
+|-----------|--------------|-----------|
+| Password Guessing | T1110.001 | Repeated authentication attempts against the SSH service |
+| SSH | T1021.004 | SSH service used for remote access to the Ubuntu endpoint |
 
-| Technique | ID | Relevance |
+### T1110.001 — Password Guessing
 
-| Password Guessing | T1110.001 | Authentication attempts against SSH |
-| SSH | T1021.004 | SSH service used for remote access |
+The repeated failed SSH authentication attempts using the non-existent username `wronguser` are consistent with password-guessing activity. The activity was detected by Wazuh and correlated with the Ubuntu authentication logs.
 
-The alert metadata also associated the activity with **Credential Access** and **Lateral Movement** tactics.
+### T1021.004 — SSH
+
+The attack activity targeted the SSH service running on the monitored Ubuntu endpoint over TCP port `22`. SSH was the remote access protocol involved in the authentication attempts.
+
+### Associated Tactics
+
+- **Credential Access** — Attempted authentication using invalid credentials.
+- **Lateral Movement** — SSH can be used for remote access between systems.
+
+### MITRE ATT&CK Summary
+
+| Tactic | Technique | ID | Evidence |
+|--------|-----------|----|----------|
+| Credential Access | Password Guessing | T1110.001 | Multiple failed SSH authentication attempts |
+| Lateral Movement | SSH | T1021.004 | SSH authentication activity targeting port 22 |
 
 ---
 
-### Endpoint Log Validation
-
-
-The detection was independently validated using the Ubuntu authentication logs.
-
-```bash
-sudo grep "Failed password" /var/log/auth.log | tail -n 20
-
 ---
+
 
 ### 🛡️ Containment
 
@@ -132,41 +189,65 @@ After confirming the suspicious SSH authentication activity, network-level conta
 
 The identified source IP address was blocked from accessing the SSH service:
 
-```bash
 sudo ufw deny from 192.168.237.141 to any port 22 proto tcp
 sudo ufw status numbered
 ---
-
 ## 📊 Findings Summary
 
-The investigation confirmed a controlled SSH authentication attack against the monitored Ubuntu endpoint.
+The investigation identified and analyzed suspicious SSH authentication activity against the monitored Ubuntu endpoint.
 
 | Finding | Details |
-
-| Attack Type | SSH authentication / brute-force activity |
+|---------|---------|
+| Incident Type | SSH Authentication Attack |
 | Source IP | `192.168.237.141` |
 | Target IP | `192.168.237.148` |
-| Target Service | SSH |
+| Target Service | OpenSSH |
 | Destination Port | `22/TCP` |
 | Username Attempted | `wronguser` |
-| Wazuh Rule ID | `5710` |
+| Account Status | Non-existent user |
+| Authentication Result | Failed |
+| Wazuh Detection Rule | `5710` |
 | Wazuh Alert Level | `5` |
-| Detection | Attempt to log in using a non-existent user |
-| MITRE ATT&CK | `T1110.001 - Password Guessing` |
-| Containment | UFW firewall rule |
-| Containment Status | Active |
+| Detection | Attempt to login using a non-existent user |
+| MITRE Technique | `T1110.001 - Password Guessing` |
+| Secondary Technique | `T1021.004 - SSH` |
+| Log Validation | Linux SSH authentication logs |
+| Successful Login | Not observed |
+| Privilege Escalation | Not observed |
+| Containment Method | UFW firewall |
+| Containment Action | Blocked source IP from SSH |
+| Containment Status | Successfully applied |
+| SSH Service Status | Active |
+| Overall Risk | Low-Medium |
 
 ### Key Findings
 
-- Multiple failed SSH authentication attempts were observed from the same source IP.
-- The attempted username `wronguser` did not exist on the monitored endpoint.
-- Wazuh successfully detected and generated an alert for the suspicious authentication activity.
-- Endpoint authentication logs independently confirmed the failed SSH attempts.
-- The activity was mapped to **MITRE ATT&CK T1110.001 (Password Guessing)**.
-- The identified source IP was contained using a UFW firewall rule.
-- UFW confirmed that traffic from `192.168.237.141` to SSH port `22` was denied.
-- The SSH service remained operational after containment.
-<img width="1580" height="615" alt="apktool" src="https://github.com/CharanCSE02/Reverse-Engineering-APk-file/blob/main/Screenshot%202025-11-25%20164924.png" />
+| # | Finding | Status |
+|---|---------|--------|
+| 1 | Multiple failed SSH authentication attempts detected | Confirmed |
+| 2 | Invalid username `wronguser` identified | Confirmed |
+| 3 | Source IP `192.168.237.141` identified | Confirmed |
+| 4 | Wazuh Rule `5710` generated an alert | Confirmed |
+| 5 | Endpoint logs validated the Wazuh detection | Confirmed |
+| 6 | Activity mapped to MITRE ATT&CK | Confirmed |
+| 7 | Source IP blocked using UFW | Confirmed |
+| 8 | SSH service remained operational after containment | Confirmed |
+| 9 | Successful authentication was observed | No |
+| 10 | Evidence of privilege escalation was observed | No |
+
+### Investigation Outcome
+
+The investigation confirmed suspicious SSH authentication activity originating from `192.168.237.141`. Wazuh successfully detected the activity, endpoint logs validated the alert, and the source IP was contained using a UFW firewall rule.
+
+No successful authentication, privilege escalation, or confirmed system compromise was observed during the controlled investigation.
+
+---
+
+<img width="1580" height="615" alt="apktool" src="Finding Remote SSH Authentication Attack Detected.png" />
+Finding Remote SSH Authentication Attack Detected.png
+
+<img width="1580" height="615" alt="apktool" src="Finding Remote SSH Authentication Attack Detected.png" />
+
 
 ### SOC Analyst Conclusion
 
@@ -189,25 +270,37 @@ If successful, repeated SSH authentication attempts could allow an attacker to o
 - Lateral movement to other systems
 - Data access or modification
 
-### Risk Factors
+## ⚠️ Risk Factors
+
+The following risk factors were identified during the investigation of the simulated SSH authentication activity.
 
 | Risk Factor | Assessment |
+|-------------|------------|
 | Attack Vector | SSH remote authentication |
-| Authentication Activity | Multiple failed attempts |
+| Authentication Activity | Multiple failed authentication attempts |
 | Source | Single internal source IP |
 | Target | Ubuntu SSH service |
+| Target Port | 22/TCP |
+| Username | Non-existent account (`wronguser`) |
 | Successful Login | Not observed |
 | Privilege Obtained | None |
-| Detection | Wazuh SIEM |
+| Detection | Wazuh SIEM alert |
+| Detection Rule | Rule ID 5710 |
+| Alert Level | 5 |
+| MITRE ATT&CK | T1110.001 - Password Guessing |
 | Containment | UFW source-IP blocking |
+| Containment Status | Active |
 | Overall Risk | Low-Medium |
 
 ### Risk Assessment
 
-The immediate risk was reduced because the authentication attempts were unsuccessful and the attacking source IP was identified and blocked at the firewall level.
+The immediate risk was assessed as **Low-Medium** because the authentication attempts were unsuccessful, no valid account was compromised, and no privilege escalation or unauthorized access was observed.
 
-However, repeated authentication attempts against exposed SSH services should be investigated because continued activity could indicate password guessing, credential attacks, or preparation for unauthorized access.
+The source IP was identified during the investigation and subsequently restricted using a UFW firewall rule, reducing the immediate exposure of the SSH service to the identified source.
 
+However, repeated authentication failures against an exposed SSH service should not be ignored. Continued activity could indicate password guessing, credential attacks, or preparation for unauthorized access.
+
+---
 ---
 
 ## 🛡️ Recommendations
@@ -259,18 +352,6 @@ Key lessons learned:
 - Incident response
 - Firewall-based containment
 - Security control verification
----
-
-## 🛠️ Tools Used
-
-| Tool | Purpose |
-| **Wazuh SIEM** | Security monitoring, alert generation, and investigation |
-| **Ubuntu 24.04.4 LTS** | Monitored endpoint and attack simulation environment |
-| **OpenSSH** | SSH service used during the authentication attack simulation |
-| **Linux Authentication Logs** | Validation of failed SSH authentication attempts |
-| **UFW (Uncomplicated Firewall)** | Source IP containment and traffic blocking |
-| **MITRE ATT&CK** | Threat technique classification and mapping |
-| **GitHub** | Project documentation, evidence, and version control |
 
 ---
 ## 🎯 Scope
