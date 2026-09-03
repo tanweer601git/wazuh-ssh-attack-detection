@@ -39,7 +39,7 @@ This lab represents a simplified real-world SOC incident investigation workflow.
 | Detection | Attempt to login using a non-existent user |
 | Testing Environment | Isolated and controlled SOC laboratory |
 
----
+
 ---
 
 ## 🎯 Objective
@@ -178,7 +178,6 @@ The attack activity targeted the SSH service running on the monitored Ubuntu end
 | Credential Access | Password Guessing | T1110.001 | Multiple failed SSH authentication attempts |
 | Lateral Movement | SSH | T1021.004 | SSH authentication activity targeting port 22 |
 
----
 
 ---
 
@@ -246,8 +245,10 @@ No successful authentication, privilege escalation, or confirmed system compromi
 <img width="1580" height="615" alt="apktool" src="Finding Remote SSH Authentication Attack Detected.png" />
 Finding Remote SSH Authentication Attack Detected.png
 
-<img width="1580" height="615" alt="apktool" src="Finding Remote SSH Authentication Attack Detected.png" />
+<img width="1580" height="615" alt="apktool" src="attack details.png" />
+attack details.png
 
+<img width="1580" height="615" alt="apktool" src="attack details.png" />
 
 ### SOC Analyst Conclusion
 
